@@ -100,6 +100,8 @@ package Pugi_Xml is
    type XML_Node is new Ada.Finalization.Controlled with private;
    type XML_Attribute is new Ada.Finalization.Controlled with private;
 
+   Indent_Default : constant String(1..1) := (others => Ada.Characters.Latin_1.HT);
+
    -- XML_Parse_Result
    function Status(Obj: XML_Parse_Result) return XML_Parse_Status;
    function Offset(Obj: XML_Parse_Result) return Interfaces.C.Unsigned;
@@ -108,105 +110,73 @@ package Pugi_Xml is
    function OK(Obj: XML_Parse_Result) return Boolean;
 
    -- XML_Document
-   procedure As_Root(Obj: XML_Document; Node: out XML_Node'Class);
+   function Root(Obj: XML_Document'Class) return XML_Node;
    procedure Load(Obj: XML_Document; Pathname: string; Result: out XML_Parse_Result'Class);
    procedure Load_In_Place(Obj: XML_Document; Contents: System.Address; Bytes: Standard.Integer; Encoding: XML_Encoding := Encoding_Auto; Result: out XML_Parse_Result'Class);
-   procedure Child(Obj: XML_Document; Name: String; Node: out XML_Node'Class);
+   procedure Save(Obj: XML_Document; Pathname: String; OK: out Boolean; Indent: String := Indent_Default; Encoding: XML_Encoding := Encoding_Auto);
+   function Child(Obj: XML_Document'Class;  Name: String) return XML_Node;
    procedure Reset(Obj: XML_Document);
    procedure Reset(Obj: XML_Document; Proto: XML_Document'Class);
 
-   Indent_Default : constant String(1..1) := (others => Ada.Characters.Latin_1.HT);
-
-   procedure Save(Obj: XML_Document; Pathname: String; OK: out Boolean; Indent: String := Indent_Default; Encoding: XML_Encoding := Encoding_Auto);
-
-   -- // Load document from buffer. Copies/converts the buffer, so it may be deleted or changed after the function returns.
-   -- xml_parse_result load_buffer(const void* contents, size_t size, unsigned int options = parse_default, xml_encoding encoding = encoding_auto);
-   -- 
-   -- // Load document from buffer, using the buffer for in-place parsing (the buffer is modified and used for storage of document data).
-   -- // You should ensure that buffer data will persist throughout the document's lifetime, and free the buffer memory manually once document is destroyed.
-   -- xml_parse_result load_buffer_inplace(void* contents, size_t size, unsigned int options = parse_default, xml_encoding encoding = encoding_auto);
-   -- 
-   -- // Load document from buffer, using the buffer for in-place parsing (the buffer is modified and used for storage of document data).
-   -- // You should allocate the buffer with pugixml allocation function; document will free the buffer when it is no longer needed (you can't use it anymore).
-   -- xml_parse_result load_buffer_inplace_own(void* contents, size_t size, unsigned int options = parse_default, xml_encoding encoding = encoding_auto);
-   -- 
-   -- // Save XML document to writer (semantics is slightly different from xml_node::print, see documentation for details).
-   -- void save(xml_writer& writer, const char_t* indent = PUGIXML_TEXT("\t"), unsigned int flags = format_default, xml_encoding encoding = encoding_auto) const;
-   -- 
-   -- #ifndef PUGIXML_NO_STL
-   -- // Save XML document to stream (semantics is slightly different from xml_node::print, see documentation for details).
-   -- void save(std::basic_ostream<char, std::char_traits<char> >& stream, const char_t* indent = PUGIXML_TEXT("\t"), unsigned int flags = format_default, xml_encoding encoding = $
-   -- void save(std::basic_ostream<wchar_t, std::char_traits<wchar_t> >& stream, const char_t* indent = PUGIXML_TEXT("\t"), unsigned int flags = format_default) const;
-   -- #endif
-   -- 
-   -- // Save XML to file
-   -- bool save_file(const char* path, const char_t* indent = PUGIXML_TEXT("\t"), unsigned int flags = format_default, xml_encoding encoding = encoding_auto) const;
-   -- bool save_file(const wchar_t* path, const char_t* indent = PUGIXML_TEXT("\t"), unsigned int flags = format_default, xml_encoding encoding = encoding_auto) const;
-
-
    -- XML_Node
    function Name(Obj: XML_Node) return String;
-   procedure Parent(Obj: XML_Node; Node: out XML_Node'Class);
-   procedure Child(Obj: XML_Node; Name: String; Node: out XML_Node'Class);
+   function Parent(Obj: XML_Node'Class) return XML_Node;
+   function Child(Obj: XML_Node'Class; Name: String) return XML_Node;
    function Empty(Obj: XML_Node) return Boolean;
    function Node_Type(Obj: XML_Node) return XML_Node_Type;
    function Value(Obj: XML_Node) return String;
-   procedure First_Child(Obj: XML_Node; Node: out XML_Node);
-   procedure Last_Child(Obj: XML_Node; Node: out XML_Node);
-   procedure Root_Node(Obj: XML_Node; Node: out XML_Node);
-   procedure Next_Sibling(Obj: XML_Node; Node: out XML_Node);
-   procedure Next_Sibling(Obj: XML_Node; Name: String; Node: out XML_Node);
-   procedure Previous_Sibling(Obj: XML_Node; Node: out XML_Node);
-   procedure Previous_Sibling(Obj: XML_Node; Name: String; Node: out XML_Node);
+   function First_Child(Obj: XML_Node'Class) return XML_Node;
+   function Last_Child(Obj: XML_Node'Class) return XML_Node;
+   function Root(Obj: XML_Node'Class) return XML_Node;
+   function Next(Obj: XML_Node'Class) return XML_Node;
+   function Next(Obj: XML_Node'Class; Name: String) return XML_Node;
+   function Previous(Obj: XML_Node'Class) return XML_Node;
+   function Previous(Obj: XML_Node'Class; Name: String) return XML_Node;
    function Is_Null(Obj: XML_Node) return Boolean;
    function Child_Value(Obj: XML_Node) return String;
    function Child_Value(Obj: XML_Node; Name: String) return String;
 
-   procedure Append_Copy(Obj: XML_Node; Proto: XML_Attribute'Class; Attr: out XML_Attribute'Class);
-   procedure Prepend_Copy(Obj: XML_Node; Proto: XML_Attribute'Class; Attr: out XML_Attribute'Class);
-   procedure Insert_Copy_After(Obj: XML_Node; After: XML_Attribute'Class; Proto: XML_Attribute'Class; Attr: out XML_Attribute'Class);
-   procedure Insert_Copy_Before(Obj: XML_Node; Before: XML_Attribute'Class; Proto: XML_Attribute'Class; Attr: out XML_Attribute'Class);
+   function Append_Copy(Obj: XML_Node'Class; Proto: XML_Attribute'Class) return XML_Attribute;
+   function Prepend_Copy(Obj: XML_Node'Class; Proto: XML_Attribute'Class) return XML_Attribute;
+   function Insert_Copy_After(Obj: XML_Node'Class; After: XML_Attribute'Class; Proto: XML_Attribute'Class) return XML_Attribute;
+   function Insert_Copy_Before(Obj: XML_Node'Class; Before: XML_Attribute'Class; Proto: XML_Attribute'Class) return XML_Attribute;
 
    function "="(Left: XML_Node; Right: XML_Node) return Boolean;
-   function "<"(Left: XML_Node; Right: XML_Node) return Boolean;
-   function "<="(Left: XML_Node; Right: XML_Node) return Boolean;
-   function ">"(Left: XML_Node; Right: XML_Node) return Boolean;
-   function ">="(Left: XML_Node; Right: XML_Node) return Boolean;
 
-   procedure Set_Name(Obj: XML_Node; Data: String; OK: out Boolean);
-   procedure Set_Value(Obj: XML_Node; Data: String; OK: out Boolean);
+   function Set_Name(Obj: XML_Node; Data: String) return Boolean;
+   function Set_Value(Obj: XML_Node; Data: String) return Boolean;
 
-   procedure First_Attribute(Obj: XML_Node; Attr: out XML_Attribute'Class);
-   procedure Last_Attribute(Obj: XML_Node; Attr: out XML_Attribute'Class);
-   procedure Attribute(Obj: XML_Node; Name: String; Attr: out XML_Attribute'Class);
+   function First_Attribute(Obj: XML_Node'Class) return XML_Attribute;
+   function Last_Attribute(Obj: XML_Node'Class) return XML_Attribute;
+   function Attribute(Obj: XML_Node'Class; Name: String) return XML_Attribute;
 
    function Text(Obj: XML_Node) return String;
 
-   procedure Append_Attribute(Obj: XML_Node; Name: String; Attr: out XML_Attribute'Class);
-   procedure Prepend_Attribute(Obj: XML_Node; Name: String; Attr: out XML_Attribute'Class);
-   procedure Insert_Attribute_After(Obj: XML_Node; Name: String; Other: XML_Attribute'Class; Attr: out XML_Attribute'Class);
-   procedure Insert_Attribute_Before(Obj: XML_Node; Name: String; Other: XML_Attribute'Class; Attr: out XML_Attribute'Class);
+   function Append_Attribute(Obj: XML_Node'Class; Name: String) return XML_Attribute;
+   function Prepend_Attribute(Obj: XML_Node'Class; Name: String) return XML_Attribute;
+   function Insert_Attribute_After(Obj: XML_Node'Class; Name: String; Other: XML_Attribute'Class) return XML_Attribute;
+   function Insert_Attribute_Before(Obj: XML_Node'Class; Name: String; Other: XML_Attribute'Class) return XML_Attribute;
 
-   procedure Append_Child(Obj: XML_Node; Node_Type: XML_Node_Type; Node: out XML_Node'Class);
-   procedure Prepend_Child(Obj: XML_Node; Node_Type: XML_Node_Type; Node: out XML_Node'Class);
-   procedure Insert_Child_After(Obj: XML_Node; After: XML_Node'Class; Node_Type: XML_Node_Type; Node: out XML_Node'Class);
-   procedure Insert_Child_Before(Obj: XML_Node; Before: XML_Node'Class; Node_Type: XML_Node_Type; Node: out XML_Node'Class);
+   function Append_Child(Obj: XML_Node'Class; Node_Type: XML_Node_Type) return XML_Node;
+   function Prepend_Child(Obj: XML_Node'Class; Node_Type: XML_Node_Type) return XML_Node;
+   function Insert_Child_After(Obj: XML_Node'Class; After: XML_Node'Class; Node_Type: XML_Node_Type) return XML_Node;
+   function Insert_Child_Before(Obj: XML_Node'Class; Before: XML_Node'Class; Node_Type: XML_Node_Type) return XML_Node;
 
-   procedure Append_Child(Obj: XML_Node; Name: String; Node: out XML_Node'Class);
-   procedure Prepend_Child(Obj: XML_Node; Name: String; Node: out XML_Node'Class);
-   procedure Insert_Child_After(Obj: XML_Node; After: XML_Node'Class; Name: String; Node: out XML_Node'Class);
-   procedure Insert_Child_Before(Obj: XML_Node; Before: XML_Node'Class; Name: String; Node: out XML_Node'Class);
+   function Append_Child(Obj: XML_Node'Class; Name: String) return XML_Node;
+   function Prepend_Child(Obj: XML_Node'Class; Name: String) return XML_Node;
+   function Insert_Child_After(Obj: XML_Node'Class; After: XML_Node'Class; Name: String) return XML_Node;
+   function Insert_Child_Before(Obj: XML_Node'Class; Before: XML_Node'Class; Name: String) return XML_Node;
 
-   procedure Append_Copy(Obj: XML_Node; Proto: XML_Node'Class; Node: out XML_Node'Class);
-   procedure Prepend_Copy(Obj: XML_Node; Proto: XML_Node'Class; Node: out XML_Node'Class);
-   procedure Insert_Copy_After(Obj: XML_Node; After, Proto: XML_Node'Class; Node: out XML_Node'Class);
-   procedure Insert_Copy_Before(Obj: XML_Node; Before, Proto: XML_Node'Class; Node: out XML_Node'Class);
+   function Append_Copy(Obj: XML_Node'Class; Proto: XML_Node'Class) return XML_Node;
+   function Prepend_Copy(Obj: XML_Node'Class; Proto: XML_Node'Class) return XML_Node;
+   function Insert_Copy_After(Obj: XML_Node'Class; After, Proto: XML_Node'Class) return XML_Node;
+   function Insert_Copy_Before(Obj: XML_Node'Class; Before, Proto: XML_Node'Class) return XML_Node;
 
-   procedure Remove_Attribute(Obj: XML_Node; Attr: XML_Attribute'Class; OK: out Boolean);
-   procedure Remove_Attribute(Obj: XML_Node; Name: String; OK: out Boolean);
+   function Remove_Attribute(Obj: XML_Node; Attr: XML_Attribute'Class) return Boolean;
+   function Remove_Attribute(Obj: XML_Node; Name: String) return Boolean;
 
-   procedure Remove_Child(Obj: XML_Node; Node: XML_Node'Class; OK: out Boolean);
-   procedure Remove_Child(Obj: XML_Node; Name: String; OK: out Boolean);
+   function Remove_Child(Obj: XML_Node; Node: XML_Node'Class) return Boolean;
+   function Remove_Child(Obj: XML_Node; Name: String) return Boolean;
 
    function Find_First_By_Path(Obj: XML_Node; Path: String; Delimiter: Character := '/') return XML_Node;
 
@@ -215,13 +185,9 @@ package Pugi_Xml is
    function Empty(Obj: XML_Attribute) return Boolean;
 
    function "="(Left, Right: XML_Attribute) return Boolean;
-   function "<"(Left, Right: XML_Attribute) return Boolean;
-   function "<="(Left, Right: XML_Attribute) return Boolean;
-   function ">"(Left, Right: XML_Attribute) return Boolean;
-   function ">="(Left, Right: XML_Attribute) return Boolean;
 
-   procedure Next_Attribute(Obj: XML_Attribute; Next: out XML_Attribute'Class);
-   procedure Previous_Attribute(Obj: XML_Attribute; Prev: out XML_Attribute'Class);
+   function Next(Obj: XML_Attribute'Class) return XML_Attribute;
+   function Previous(Obj: XML_Attribute'Class) return XML_Attribute;
 
    function Is_Null(Obj: XML_Attribute) return Boolean;
 
@@ -231,13 +197,13 @@ package Pugi_Xml is
    function As_Float(Obj: XML_Attribute) return Standard.Float;
    function As_Boolean(Obj: XML_Attribute) return Boolean;
    
-   procedure Set_Name(Obj: XML_Attribute; Name: String);
-   procedure Set_Value(Obj: XML_Attribute; Value: String);
-   procedure Set_Value(Obj: XML_Attribute; Value: Standard.Integer);
-   procedure Set_Value(Obj: XML_Attribute; Value: Interfaces.C.Unsigned);
-   procedure Set_Value(Obj: XML_Attribute; Value: Standard.Float);
-   procedure Set_Value(Obj: XML_Attribute; Value: Interfaces.C.Double);
-   procedure Set_Value(Obj: XML_Attribute; Value: Boolean);
+   function Set_Name(Obj: XML_Attribute; Name: String) return Boolean;
+   function Set_Value(Obj: XML_Attribute; Value: String) return Boolean;
+   function Set_Value(Obj: XML_Attribute; Value: Standard.Integer) return Boolean;
+   function Set_Value(Obj: XML_Attribute; Value: Interfaces.C.Unsigned) return Boolean;
+   function Set_Value(Obj: XML_Attribute; Value: Standard.Float) return Boolean;
+   function Set_Value(Obj: XML_Attribute; Value: Interfaces.C.Double) return Boolean;
+   function Set_Value(Obj: XML_Attribute; Value: Boolean) return Boolean;
 
 private
 

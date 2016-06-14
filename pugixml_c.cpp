@@ -111,13 +111,13 @@ extern "C" {
 	double pugi_attr_as_double(pugi::xml_attribute obj);
 	int pugi_attr_as_bool(pugi::xml_attribute obj);
 
-	void pugi_set_attr_name(pugi::xml_attribute obj,const char *name);
-	void pugi_set_attr_value(pugi::xml_attribute obj,const char *value);
-	void pugi_set_attr_int(pugi::xml_attribute obj,int value);
-	void pugi_set_attr_uint(pugi::xml_attribute obj,unsigned value);
-	void pugi_set_attr_float(pugi::xml_attribute obj,float value);
-	void pugi_set_attr_double(pugi::xml_attribute obj,double value);
-	void pugi_set_attr_bool(pugi::xml_attribute obj,int value);
+	int pugi_set_attr_name(pugi::xml_attribute obj,const char *name);
+	int pugi_set_attr_value(pugi::xml_attribute obj,const char *value);
+	int pugi_set_attr_int(pugi::xml_attribute obj,int value);
+	int pugi_set_attr_uint(pugi::xml_attribute obj,unsigned value);
+	int pugi_set_attr_float(pugi::xml_attribute obj,float value);
+	int pugi_set_attr_double(pugi::xml_attribute obj,double value);
+	int pugi_set_attr_bool(pugi::xml_attribute obj,int value);
 }
 
 pugi::xml_document *
@@ -517,39 +517,39 @@ pugi_attr_as_bool(pugi::xml_attribute obj) {
 	return obj.as_bool() ? 1 : 0;
 }
 
-void 
+int
 pugi_set_attr_name(pugi::xml_attribute obj,const char *name) {
-	obj.set_name(name);
+	return obj.set_name(name);
 }
 
-void 
+int
 pugi_set_attr_value(pugi::xml_attribute obj,const char *value) {
-	obj.set_value(value);
+	return obj.set_value(value);
 }
 
-void 
+int
 pugi_set_attr_int(pugi::xml_attribute obj,int value) {
-	obj.set_value(value);
+	return obj.set_value(value);
 }
 
-void 
+int
 pugi_set_attr_uint(pugi::xml_attribute obj,unsigned value) {
-	obj.set_value(value);
+	return obj.set_value(value);
 }
 
-void 
+int
 pugi_set_attr_float(pugi::xml_attribute obj,float value) {
-	obj.set_value(value);
+	return obj.set_value(value);
 }
 
-void 
+int
 pugi_set_attr_double(pugi::xml_attribute obj,double value) {
-	obj.set_value(value);
+	return obj.set_value(value);
 }
 
-void 
+int
 pugi_set_attr_bool(pugi::xml_attribute obj,int value) {
-	obj.set_value(value != 0);
+	return obj.set_value(value != 0);
 }
 
 unsigned

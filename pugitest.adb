@@ -36,35 +36,34 @@ begin
    Put_Line(Description(Res));
 
    Put_Line("Getting Child");
-   Child(Doc,"entities",Node);
+   Node := Doc.Child("entities");
    Put("Node name is '");
    Put(Node.Name);
    Put_Line("', Type=" & XML_Node_Type'Image(Node.Node_Type));
 
-   Node.Child("gnatprep",Gnat_Prep);
+   Gnat_Prep := Node.Child("gnatprep");
    Put_Line("Gnat_Prep name is '" & Gnat_Prep.Name & "'");
 
    declare
       F, L: XML_Attribute;
    begin
-      Gnat_Prep.First_Attribute(F);
-      Gnat_Prep.Last_Attribute(L);
+      F := Gnat_Prep.First_Attribute;
+      L := Gnat_Prep.Last_Attribute;
       Put_Line("gnatprep First attr " & F.Name & " and last attr " & L.Name);
       Put_Line("Values are '" & F.Value & "' and '" & L.Value & "'");
    end;
 
    pragma Assert(Node.Empty = False);
 
-   Node.Child("gnatprep",Gnat_Prep);
+   Gnat_Prep := Node.Child("gnatprep");
    Put("Gnat_Prep name is '");
    Put(Gnat_Prep.Name);
    Put_Line("'");
 
    pragma Assert(Gnat_Prep = Gnat_Prep);
    declare
-      Other : XML_Node;
+      Other : XML_Node := Node.Child("gnatprep");
    begin
-      Node.Child("gnatprep",Other);
       pragma Assert(Gnat_Prep = Gnat_Prep);
       pragma Assert(Gnat_Prep /= Other);
       pragma Assert(Other /= Par_Node);
@@ -81,8 +80,8 @@ begin
    declare
       First, Last, Temp : XML_Node;
    begin
-      First_Child(Gnat_Prep,First);
-      Last_Child(Gnat_Prep,Last);
+      First := Gnat_Prep.First_Child;
+      Last := Gnat_Prep.Last_Child;
       Put("First and last child of Gnat_Prep are ");
       Put(First.Name);
       Put(" and ");
@@ -92,7 +91,7 @@ begin
       Temp := First;
       loop
          Put_Line(Temp.Name);
-         Temp.Next_Sibling(Temp);
+         Temp := Temp.Next;
          exit when Temp.Is_Null;
       end loop;
       Put_Line("--");
@@ -101,7 +100,7 @@ begin
       Temp := Last;
       loop
          Put_Line(Temp.Name);
-         Temp.Previous_Sibling(Temp);
+         Temp := Temp.Previous;
          exit when Temp.Is_Null;
       end loop;
       Put_Line("--");
@@ -114,11 +113,9 @@ begin
 
       declare
          Middle : String := Gnat_Prep.Child_Value("Middle");
-         M : XML_Node;
+         M : XML_Node := Gnat_Prep.Child("Middle");
       begin
          Put_Line("Child value('Middle') is '" & Middle & "'");
-         Gnat_Prep.Child("Middle",M);
-
          declare
             Mid2 : String := M.Text;
          begin
@@ -127,7 +124,7 @@ begin
       end;
    end;
 
-   Parent(Gnat_Prep,Par_Node);
+   Par_Node := Parent(Gnat_Prep);
    Put("Parent name is '");
    Put(Par_Node.Name);
    Put_Line("'");
@@ -136,8 +133,8 @@ begin
       Root : XML_Node;
       Temp : XML_Node;
    begin
-      Gnat_Prep.Root_Node(Root);
-      Root.First_Child(Temp);
+      Root := Gnat_Prep.Root;
+      Temp := Root.First_Child;
       pragma Assert(Temp.Name = "entities");
       Put_Line("Root passed.");
    end;
@@ -145,51 +142,48 @@ begin
    declare
       Attr : XML_Attribute;
    begin
-      Gnat_Prep.First_Attribute(Attr);
+      Attr := Gnat_Prep.First_Attribute;
       loop
          Put("Attribute: ");
          Put_Line(Attr.Name);
-         Attr.Next_Attribute(Attr);
+         Attr := Attr.Next;
          exit when Attr.Is_Null;
       end loop;
 
       Put_Line("In Reverse Order:");
-      Gnat_Prep.Last_Attribute(Attr);
+      Attr := Gnat_Prep.Last_Attribute;
       loop
          Put("Attribute: ");
          Put_Line(Attr.Name);
-         Attr.Previous_Attribute(Attr);
+         Attr := Attr.Previous;
          exit when Attr.Is_Null;
       end loop;
    end;
 
    declare
-      Root : XML_Node;
+      Root : XML_Node := Doc.Root;
       Temp : XML_Node;
       A1, A2, A3, A4: XML_Attribute;
    begin
-      Doc.As_Root(Root);
-      Root.First_Child(Temp);
+      Temp := Root.First_Child;
       pragma Assert(Temp.Name = "entities");
       Put_Line("As_Node passed.");
 
-      Temp.Append_Attribute("A4",A4);
-      Temp.Prepend_Attribute("A1",A1);
-      Temp.Insert_Attribute_After("A2",A1,A2);
-      Temp.Insert_Attribute_Before("A3",A4,A3);
-
+      A4 := Temp.Append_Attribute("A4");
+      A1 := Temp.Prepend_Attribute("A1");
+      A2 := Temp.Insert_Attribute_After("A2",A1);
+      A3 := Temp.Insert_Attribute_Before("A3",A4);
    end;
 
    Put_Line("Testing document creation:");
 
    declare
       New_Doc : XML_Document;
-      Root : XML_Node;
+      Root : XML_Node := New_Doc.Root;
       Node : XML_Node;
       Attr1 : XML_Attribute;
    begin
-      New_Doc.As_Root(Root);
-      Root.Append_Child("Named_Root",Node);
+      Node := Root.Append_Child("Named_Root");
       pragma Assert(Node.Name = "Named_Root");
       Put_Line("New Document Test passed.");
    end;
@@ -200,11 +194,12 @@ begin
       Attr1 : XML_Attribute;
       OK : Boolean;
    begin
-      New_Doc.As_Root(Root);
-      Root.Append_Child("Node",Node);
+      Root := New_Doc.Root;
+      Node := Root.Append_Child("Node");
       pragma Assert(Node.Is_Null = False);
-      Node.Append_Attribute("Attr1",Attr1);
-      Attr1.Set_Value("ATTR_ONE");
+      Attr1 := Node.Append_Attribute("Attr1");
+      OK := Attr1.Set_Value("ATTR_ONE");
+      pragma Assert(OK);
       pragma Assert(Attr1.Is_Null = False);
       Save(New_Doc,"out.xml",OK);
       pragma assert(OK);
@@ -214,9 +209,9 @@ begin
    declare
       First, Two, Last: XML_Attribute;
    begin
-      First_Attribute(Gnat_Prep,First);
-      Attribute(Gnat_Prep,"attr2",Two);
-      Last_Attribute(Gnat_Prep,Last);
+      First := Gnat_Prep.First_Attribute;
+      Two := Gnat_Prep.Attribute("attr2");
+      Last := Gnat_Prep.Last_Attribute;
 
       Put_Line("attr1.name = " & First.Name);
       Put_Line("attr2.name = " & Two.Name);
@@ -246,14 +241,14 @@ begin
    begin
       Doc.Load_In_Place(Content(1)'Address,Content'Length,Result=>Res);
       pragma Assert(Res.OK = True);
-      Doc.As_Root(Root);
-      Root.Child("Root_Node",Root_Node);
+      Root := Doc.Root;
+      Root_Node := Root.Child("Root_Node");
       Put_Line("Root Node name is '" & Root_Node.Name & "'");
       pragma Assert(Root_Node.Name = "Root_Node");
-      Root_Node.Child("Node1",Node1);
+      Node1 := Root_Node.Child("Node1");
       Put_Line("Node1 name is '" & Node1.Name & "'");
       pragma Assert(Node1.Name = "Node1");
-      Node1.Attribute("Attr1",Attr1);
+      Attr1 := Node1.Attribute("Attr1");
       pragma Assert(Attr1.Name = "Attr1");
       pragma Assert(Attr1.Value = "One");
 
