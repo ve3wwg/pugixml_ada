@@ -1,0 +1,7 @@
+<entities>
+   <gnatprep attr1="One" attr2="Two" attr3="Three">
+      <First_Node>Oink</First_Node>
+      <Middle>Knarf</Middle>
+      <Last_Node>Snort</Last_Node>
+   </gnatprep>
+</entities>
