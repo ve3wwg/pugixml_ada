@@ -2,12 +2,7 @@
 #  Makefile.incl
 ######################################################################
 
-V	?= 0
-
-.SUFFIXES: .yacc .flex .cpp .hpp .adb
-
-YACC	= bison # Must use bison
-FLEX	= flex # Must use flex
+.SUFFIXES: .cpp .hpp .adb
 
 CSTD	?= -std=c++0x
 OPTZ	?= -O0 -g
@@ -15,48 +10,17 @@ CFLAGS	+= -Wno-deprecated-register
 
 CXX	?= g++
 CC	?= gcc
-SED	?= sed
 
 GNAT	= gnatmake
-GNATOPTS = -Wall -g -gnata -gnatep=gnat.prep
-
--include Makefile.custom
+GNATOPTS = -Wall -g -gnata
 
 .adb:
 	$(GNAT) $(GNATOPTS) $*.adb -o $* -L. -largs libadafpx.a
 
-.yacc.cpp:
-ifneq	($(V),0)
-	$(YACC) -o $*.cpp --defines=$*.hpp $<
-else
-	@echo YACC $<
-	@$(YACC) -o $*.cpp --defines=$*.hpp $<
-endif
-
-.flex.cpp:
-ifneq	($(V),0)
-	$(FLEX) --outfile=$*.cpp $<
-	$(SED) 's/for ( i = 0; i < _yybytes_len; ++i )/for ( i = 0; yy_size_t(i) < _yybytes_len; ++i )/' <$*.cpp >.sed && mv .sed $*.cpp
-else
-	@echo FLEX $<
-	@$(FLEX) --outfile=$*.cpp $<
-	@$(SED) 's/for ( i = 0; i < _yybytes_len; ++i )/for ( i = 0; yy_size_t(i) < _yybytes_len; ++i )/' <$*.cpp >.sed && mv .sed $*.cpp
-endif
-
 .cpp.o:
-ifneq	($(V),0)
 	$(CXX) -c -Wall -Wno-unused-function $(OPTZ) $(CSTD) $(CFLAGS) $(INCL) $< -o $*.o
-else
-	@echo CXX $<
-	@$(CXX) -c -Wall -Wno-unused-function $(OPTZ) $(CSTD) $(CFLAGS) $(INCL) $< -o $*.o
-endif
 
 .c.o:
-ifneq	($(V),0)
 	$(CC) -c -Wall -Wno-unused-function $(OPTZ) $(CFLAGS) $(INCL) $< -o $*.o
-else
-	echo CC $<
-	@$(CC) -c -Wall -Wno-unused-function $(OPTZ) $(CFLAGS) $(INCL) $< -o $*.o
-endif
 
 # End Makefile.incl
