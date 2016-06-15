@@ -27,7 +27,7 @@ begin
    Put("Load Results: Status: ");
    Put(XML_Parse_Status'Image(Status(Res)));
    Put(" Offset: ");
-   Put(Interfaces.C.Unsigned'Image(Offset(Res)));
+   Put(Natural'Image(Offset(Res)));
    Put(" Encoding: ");
    Put(XML_Encoding'Image(Encoding(Res)));
    Put(" OK: ");
@@ -259,6 +259,6 @@ begin
       Put_Line("Load_In_Place verified.");
    end;
 
-   Put_Line("Done");
+   Put_Line("Grotty Test Successful.");
 
 end PugiTest;
