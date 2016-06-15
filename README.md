@@ -76,3 +76,14 @@ The demo code (in pugidemo.adb) loads this information:
           Put_Line(Database.Attribute("password").Value);
        end;
     end;
+
+# BUILD
+
+1. make
+1. ./pugitest
+1. ./pugidemo
+
+# NOTES
+
+1. If you upgrade to a newer version of pugi::xml, check that the enumerated constants have not changed. 
+The constants defined in the pugi_xml.ads module must agree.
