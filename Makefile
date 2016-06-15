@@ -5,6 +5,7 @@
 include Makefile.incl
 
 all:	libpugixml_ada.a pugitest pugidemo
+	@echo
 	@echo "Run ./pugitest for a grotty simple test of basic XML functions."
 	@echo
 	@echo "Run ./pugidemo to create and process testconfig.xml."
