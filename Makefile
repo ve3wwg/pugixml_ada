@@ -4,20 +4,23 @@
 
 include Makefile.incl
 
-all:	xrm pugitest
-
-OBJS	= ansi-c-lex.o ansi-c-yacc.o pugixml.o main.o config.o utils.o comp.o \
-	  macros.o types.o sect2.o btypes.o systypes.o structs.o
-
-main:	ansi-c-lex.cpp ansi-c-yacc.cpp $(OBJS)
-	$(CXX) $(OBJS) -o main
-	rm -f atest atest.o *.ali b~* cglue.o
+all:	libpugixml_ada.a pugitest pugidemo
+	@echo "Run ./pugitest for a grotty simple test of basic XML functions."
+	@echo
+	@echo "Run ./pugidemo to create and process testconfig.xml."
+	@echo "See program pugidemo.adb for example code."
 
 pugi_xml.o:
 	$(GNAT) -c -gnata pugi_xml.adb
 	
-pugitest: pugixml_c.o pugi_xml.o pugixml.o
-	$(GNAT) -g -gnata pugitest pugi_xml -largs pugixml_c.o pugixml.o --LINK=g++
+libpugixml_ada.a: pugi_xml.o pugixml_c.o pugixml.o
+	$(AR) r libpugixml_ada.a pugi_xml.o pugixml_c.o pugixml.o
+
+pugitest: libpugixml_ada.a pugitest.adb
+	$(GNAT) -g -gnata pugitest -largs -L. -lpugixml_ada --LINK=g++
+
+pugidemo: libpugixml_ada.a pugidemo.adb
+	$(GNAT) -g -gnata pugidemo -largs -L. -lpugixml_ada --LINK=g++
 
 xrm:
 	rm -f pugixml_c.o pugi_xml.o
@@ -27,8 +30,13 @@ clean:
 	rm -f t[0-9][0-9][0-9][0-9]
 
 clobber: clean
-	rm -f b~* *.ali core* pugitest
+	rm -f b~* *.ali *.a core* pugitest pugidemo testconfig.xml
 
 distclean: clobber
+
+pugixml_c.o: pugixml.hpp pugixml.cpp
+pugi_xml.o: pugi_xml.ads pugi_xml.adb
+pugitest.o: pugitest.adb
+pugidemo.o: pugidemo.adb
 
 # End Makefile
