@@ -742,9 +742,9 @@ package body Pugi_Xml is
       return Obj.Status;
    end Status;
 
-   function Offset(Obj: XML_Parse_Result) return Interfaces.C.Unsigned is
+   function Offset(Obj: XML_Parse_Result) return Natural is
    begin
-      return Obj.Offset;
+      return Natural(Obj.Offset);
    end Offset;
 
    function Encoding(Obj: XML_Parse_Result) return XML_Encoding is

@@ -104,7 +104,7 @@ package Pugi_Xml is
 
    -- XML_Parse_Result
    function Status(Obj: XML_Parse_Result) return XML_Parse_Status;
-   function Offset(Obj: XML_Parse_Result) return Interfaces.C.Unsigned;
+   function Offset(Obj: XML_Parse_Result) return Natural;
    function Encoding(Obj: XML_Parse_Result) return XML_Encoding;
    function Description(Obj: XML_Parse_Result) return String;   
    function OK(Obj: XML_Parse_Result) return Boolean;
