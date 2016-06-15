@@ -156,7 +156,7 @@ pugi_load_in_place(pugi::xml_document *obj,void *content,int *status,unsigned *o
 
 int
 pugi_save_file(pugi::xml_document *obj,const char *pathname,const char *indent,int encoding) {
-	return obj->save_file(pathname,indent,pugi::xml_encoding(encoding)) ? 1 : 0;
+	return obj->save_file(pathname,indent,pugi::format_default,pugi::xml_encoding(encoding)) ? 1 : 0;
 }
 
 void
