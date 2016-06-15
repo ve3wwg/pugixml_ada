@@ -79,6 +79,7 @@ The demo code (in pugidemo.adb) loads this information:
 
 # BUILD
 
+1. Check the defaults defined in pugiconfig.hpp before you start. Edit as required.
 1. make
 1. ./pugitest
 1. ./pugidemo
