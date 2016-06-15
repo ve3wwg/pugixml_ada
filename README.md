@@ -1,5 +1,5 @@
 # pugixml_ada
-A thick Ada Binding for the pugi::xml C++ library.
+A thick Ada Binding for the pugixml C++ library (http://pugixml.org).
 
 The included demo program pugidemo.adb, generates this 
 simple XML file:
