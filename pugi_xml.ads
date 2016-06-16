@@ -9,6 +9,101 @@ with System, Ada.Finalization, Interfaces.C, Ada.Characters.Latin_1;
 
 package Pugi_Xml is
 
+   type XML_Parse_Flags is
+      record
+         Parse_Pi:               Boolean; -- determines if processing instructions (node_pi) are added to the DOM tree. This flag is off by default.
+         Parse_Comments:         Boolean; -- determines if comments (node_comment) are added to the DOM tree. This flag is off by default.
+         Parse_Cdata:            Boolean; -- determines if CDATA sections (node_cdata) are added to the DOM tree. This flag is on by default.
+         Parse_Ws_Pcdata:        Boolean; -- determines if plain character data (node_pcdata) that consist only of whitespace are added to the DOM tree.
+                                          -- is off by default; turning it on usually results in slower parsing and more memory consumption.
+         Parse_Escapes:          Boolean; -- determines if character and entity references are expanded during parsing. This flag is on by default.
+         Parse_Eol:              Boolean; -- determines if EOL characters are normalized (converted to #xA) during parsing. This flag is on by default.
+         Parse_Wconv_Attribute:  Boolean; -- determines if attribute values are normalized using CDATA normalization rules during parsing. This flag is on by default.
+         Parse_Wnorm_Attribute:  Boolean; -- determines if attribute values are normalized using NMTOKENS normalization rules during parsing. This flag is off by default.
+         Parse_Declaration:      Boolean; -- determines if document declaration (node_declaration) is added to the DOM tree. This flag is off by default.
+         Parse_Doctype:          Boolean; -- determines if document type declaration (node_doctype) is added to the DOM tree. This flag is off by default.
+         Parse_Ws_Pcdata_Single: Boolean; -- determines if plain character data (node_pcdata) that is the only child of the parent node and that consists only
+                                          -- of whitespace is added to the DOM tree.
+                                          -- This flag is off by default; turning it on may result in slower parsing and more memory consumption.
+         Parse_Trim_Pcdata:      Boolean; -- determines if leading and trailing whitespace is to be removed from plain character data. This flag is off by default.
+         Parse_Fragment:         Boolean; -- determines if plain character data that does not have a parent node is added to the DOM tree, and if an empty document
+                                          -- is a valid document. This flag is off by default.
+      end record;
+
+   for XML_Parse_Flags use
+      record
+         Parse_Pi                at 0 range 0..0;     -- 0x0001
+         Parse_Comments          at 0 range 1..1;     -- 0x0002
+         Parse_Cdata             at 0 range 2..2;     -- 0x0004
+         Parse_Ws_Pcdata         at 0 range 3..3;     -- 0x0008
+         Parse_Escapes           at 0 range 4..4;     -- 0x0010
+         Parse_Eol               at 0 range 5..5;     -- 0x0020
+         Parse_Wconv_Attribute   at 0 range 6..6;     -- 0x0040
+         Parse_Wnorm_Attribute   at 0 range 7..7;     -- 0x0080
+         Parse_Declaration       at 0 range 8..8;     -- 0x0100
+         Parse_Doctype           at 0 range 9..9;     -- 0x0200
+         Parse_Ws_Pcdata_Single  at 0 range 10..10;   -- 0x0400
+         Parse_Trim_Pcdata       at 0 range 11..11;   -- 0x0800
+         Parse_Fragment          at 0 range 12..12;   -- 0x1000
+      end record;
+
+   for XML_Parse_Flags'Size use 32;
+   for XML_Parse_Flags'Bit_Order use System.Low_Order_First;
+
+   Parse_Minimal_Flags: constant XML_Parse_Flags := (
+      others => False
+   );
+
+   Parse_Default_Flags: constant XML_Parse_Flags := (
+      Parse_Cdata => True,
+      Parse_Escapes => True,
+      Parse_Wconv_Attribute => True,
+      Parse_Eol => True,
+      others => False
+   );
+
+   Parse_Full_Flags:    constant XML_Parse_Flags := (
+      Parse_Pi => True,
+      Parse_Comments => True,
+      Parse_Cdata => True,
+      Parse_Escapes => True,
+      Parse_Wconv_Attribute => True,
+      Parse_Declaration => True,
+      Parse_Doctype => True,
+      Parse_Eol => True,
+      others => False
+   );
+
+   type XML_Format_Flags is
+      record
+         Format_Indent:             Boolean;                  
+         Format_Write_Bom:          Boolean;                     
+         Format_Raw:                Boolean;               
+         Format_No_Declaration:     Boolean;                           
+         Format_No_Escapes:         Boolean;                        
+         Format_Save_File_Text:     Boolean;                           
+         Format_Indent_Attributes:  Boolean;
+      end record;
+
+   for XML_Format_Flags use
+      record
+         format_indent              at 0 range 0..0;  -- 0x01; Indent the nodes that are written to output stream with as many indentation strings as deep the node is in DOM tree. This flag is on by default.
+         format_write_bom           at 0 range 1..1;  -- 0x02; Write encoding-specific BOM to the output stream. This flag is off by default.
+         format_raw                 at 0 range 2..2;  -- 0x04; Use raw output mode (no indentation and no line breaks are written). This flag is off by default.
+         format_no_declaration      at 0 range 3..3;  -- 0x08; Omit default XML declaration even if there is no declaration in the document. This flag is off by default.
+         format_no_escapes          at 0 range 4..4;  -- 0x10; Don't escape attribute values and PCDATA contents. This flag is off by default.
+         format_save_file_text      at 0 range 5..5;  -- 0x20; Open file using text mode in xml_document::save_file. This enables special character (i.e. new-line) conversions on some systems. This flag is off by default.
+         format_indent_attributes   at 0 range 6..6;  -- 0x40; Write every attribute on a new line with appropriate indentation. This flag is off by default.
+      end record;
+
+   for XML_Format_Flags'Size use 32;
+   for XML_Format_Flags'Bit_Order use System.Low_Order_First;
+
+   Format_Default_Flags:   constant XML_Format_Flags := (
+      Format_Indent => True,
+      others => False
+   );
+
    type XML_Node_Type is (
       Node_Null,        -- Empty (null) node handle
       Node_Document,	-- A document tree's absolute root
@@ -111,9 +206,29 @@ package Pugi_Xml is
 
    -- XML_Document
    function Root(Obj: XML_Document'Class) return XML_Node;
-   procedure Load(Obj: XML_Document; Pathname: string; Result: out XML_Parse_Result'Class);
-   procedure Load_In_Place(Obj: XML_Document; Contents: System.Address; Bytes: Standard.Integer; Encoding: XML_Encoding := Encoding_Auto; Result: out XML_Parse_Result'Class);
-   procedure Save(Obj: XML_Document; Pathname: String; OK: out Boolean; Indent: String := Indent_Default; Encoding: XML_Encoding := Encoding_Auto);
+   procedure Load(
+      Obj: XML_Document;
+      Pathname: string;
+      Options: XML_Parse_Flags := Parse_Default_Flags;
+      Encoding_Option: XML_Encoding := Encoding_Auto;
+      Result: out XML_Parse_Result'Class
+   );
+   procedure Load_In_Place(
+      Obj:        XML_Document;
+      Contents:   System.Address;
+      Bytes:      Standard.Integer;
+      Options:    XML_Parse_Flags := Parse_Default_Flags;
+      Encoding:   XML_Encoding := Encoding_Auto;
+      Result: out XML_Parse_Result'Class
+   );
+   procedure Save(
+      Obj: XML_Document;
+      Pathname: String;
+      OK: out Boolean;
+      Indent: String := Indent_Default;
+      Encoding: XML_Encoding := Encoding_Auto;
+      Format: XML_Format_Flags := Format_Default_Flags
+   );
    function Child(Obj: XML_Document'Class;  Name: String) return XML_Node;
    procedure Reset(Obj: XML_Document);
    procedure Reset(Obj: XML_Document; Proto: XML_Document'Class);

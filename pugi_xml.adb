@@ -70,17 +70,25 @@ package body Pugi_Xml is
       return Node;
    end Root;
 
-   procedure Load(Obj: XML_Document; Pathname: in String; Result: out XML_Parse_Result'Class) is
-      procedure load_xml_file(Doc, Path, Status, Offset, Encoding, OK, C_Desc: System.Address);
+   procedure Load(
+      Obj:        XML_Document;
+      Pathname:   String;
+      Options:    XML_Parse_Flags := Parse_Default_Flags;
+      Encoding_Option: XML_Encoding := Encoding_Auto;
+      Result: out XML_Parse_Result'Class
+   ) is
+      procedure load_xml_file(Doc, Path, Status, Offset, Encoding_Option, OK, C_Desc, Options: System.Address; EncOpt: Standard.Integer);
       pragma Import(C,load_xml_file,"pugi_load_xml_file");
+      Flags: aliased XML_Parse_Flags := Options;
+      Enc_Opt: aliased Standard.Integer := XML_Encoding'Pos(Encoding_Option);
       C_Path:  aliased String := C_String(Pathname);
       Status:  aliased Standard.Integer;
       Offset:  aliased Interfaces.C.Unsigned;
       Encoding: aliased Standard.Integer;
-      OK: aliased Standard.Integer;
+      OK:      aliased Standard.Integer;
       C_Desc:  aliased System.Address;
    begin
-      load_xml_file(Obj.Doc,C_Path'Address,Status'Address,Offset'Address,Encoding'Address,OK'Address,C_Desc'Address);
+      load_xml_file(Obj.Doc,C_Path'Address,Status'Address,Offset'Address,Encoding'Address,OK'Address,C_Desc'Address,Flags'Address,Enc_Opt);
       Result.Status := XML_Parse_Status'Val(Status);
       Result.Offset := Offset;
       Result.Encoding := XML_Encoding'Val(Encoding);
@@ -88,14 +96,22 @@ package body Pugi_Xml is
       Result.C_Desc := C_Desc;
    end Load;
 
-   procedure Load_In_Place(Obj: XML_Document; Contents: System.Address; Bytes: Standard.Integer; Encoding: XML_Encoding := Encoding_Auto; Result: out XML_Parse_Result'Class) is
-      procedure load_in_place(Obj, Contents, Status, Offset, Enc, OK, C_Desc: System.Address; Size, Encoding: Standard.Integer);
+   procedure Load_In_Place(
+      Obj:        XML_Document;
+      Contents:   System.Address;
+      Bytes:      Standard.Integer;
+      Options:    XML_Parse_Flags := Parse_Default_Flags;
+      Encoding:   XML_Encoding := Encoding_Auto;
+      Result: out XML_Parse_Result'Class
+   ) is
+      procedure load_in_place(Obj, Contents, Status, Offset, Enc, OK, C_Desc: System.Address; Options: System.Address; Size, Encoding: Standard.Integer);
       pragma Import(C,load_in_place,"pugi_load_in_place");
       Status:  aliased Standard.Integer;
       Offset:  aliased Interfaces.C.Unsigned;
-      Enc: aliased Standard.Integer;
-      OK: aliased Standard.Integer;
+      Enc:     aliased Standard.Integer;
+      OK:      aliased Standard.Integer;
       C_Desc:  aliased System.Address;
+      Flags:   aliased XML_Parse_Flags := Options;
    begin
       load_in_place(
          Obj      => Obj.Doc,
@@ -106,6 +122,7 @@ package body Pugi_Xml is
          OK       => OK'Address,
          C_Desc   => C_Desc'Address,
          Size     => Bytes,
+         Options  => Flags'Address,
          Encoding => XML_Encoding'Pos(Encoding)
       );
       Result.Status := XML_Parse_Status'Val(Status);
@@ -115,13 +132,21 @@ package body Pugi_Xml is
       Result.C_Desc := C_Desc;
    end Load_In_Place;
 
-   procedure Save(Obj: XML_Document; Pathname: String; OK: out Boolean; Indent: String := Indent_Default; Encoding: XML_Encoding := Encoding_Auto) is
-      function save(Doc, Path, Indent: System.Address; Encoding: Standard.Integer) return Standard.Integer;
+   procedure Save(
+      Obj:        XML_Document;
+      Pathname:   String;
+      OK: out     Boolean;
+      Indent:     String := Indent_Default;
+      Encoding:   XML_Encoding := Encoding_Auto;
+      Format:     XML_Format_Flags := Format_Default_Flags
+   ) is
+      function save(Doc, Path, Indent: System.Address; Encoding: Standard.Integer; Format: System.Address) return Standard.Integer;
       pragma Import(C,save,"pugi_save_file");
+      Flags: aliased XML_Format_Flags := Format;
       C_Path:  aliased String := C_String(Pathname);
       C_Indent: aliased String := C_String(Indent);
    begin
-      OK := save(Obj.Doc,C_Path'Address,C_Indent'Address,XML_Encoding'Pos(Encoding)) /= 0;
+      OK := save(Obj.Doc,C_Path'Address,C_Indent'Address,XML_Encoding'Pos(Encoding),Format'Address) /= 0;
    end Save;
 
    function Child(Obj: XML_Document'Class; Name: String) return XML_Node is

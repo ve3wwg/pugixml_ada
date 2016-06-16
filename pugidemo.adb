@@ -96,7 +96,7 @@ begin
       Config, Ifaces, Iface: XML_Node;
       Attr:       XML_Attribute;
    begin
-      Document.Load("testconfig.xml",Result);
+      Document.Load("testconfig.xml",Result => Result);
       if not Result.OK then
          Put(Result.Description);
          Put(": testconfig.xml parse status ");

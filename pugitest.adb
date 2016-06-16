@@ -23,7 +23,7 @@ begin
    pragma Assert(Node.Is_Null);
 
    Put_Line("Running");
-   Load(Doc,"pugitest.xml",Res);
+   Load(Doc,"pugitest.xml",Result => Res);
    Put("Load Results: Status: ");
    Put(XML_Parse_Status'Image(Status(Res)));
    Put(" Offset: ");
