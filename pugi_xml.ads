@@ -87,13 +87,13 @@ package Pugi_Xml is
 
    for XML_Format_Flags use
       record
-         format_indent              at 0 range 0..0;  -- 0x01; Indent the nodes that are written to output stream with as many indentation strings as deep the node is in DOM tree. This flag is on by default.
-         format_write_bom           at 0 range 1..1;  -- 0x02; Write encoding-specific BOM to the output stream. This flag is off by default.
-         format_raw                 at 0 range 2..2;  -- 0x04; Use raw output mode (no indentation and no line breaks are written). This flag is off by default.
-         format_no_declaration      at 0 range 3..3;  -- 0x08; Omit default XML declaration even if there is no declaration in the document. This flag is off by default.
-         format_no_escapes          at 0 range 4..4;  -- 0x10; Don't escape attribute values and PCDATA contents. This flag is off by default.
-         format_save_file_text      at 0 range 5..5;  -- 0x20; Open file using text mode in xml_document::save_file. This enables special character (i.e. new-line) conversions on some systems. This flag is off by default.
-         format_indent_attributes   at 0 range 6..6;  -- 0x40; Write every attribute on a new line with appropriate indentation. This flag is off by default.
+         Format_Indent              at 0 range 0..0;  -- 0x01; Indent the nodes that are written to output stream with as many indentation strings as deep the node is in DOM tree. This flag is on by default.
+         Format_Write_Bom           at 0 range 1..1;  -- 0x02; Write encoding-specific BOM to the output stream. This flag is off by default.
+         Format_Raw                 at 0 range 2..2;  -- 0x04; Use raw output mode (no indentation and no line breaks are written). This flag is off by default.
+         Format_No_Declaration      at 0 range 3..3;  -- 0x08; Omit default XML declaration even if there is no declaration in the document. This flag is off by default.
+         Format_No_Escapes          at 0 range 4..4;  -- 0x10; Don't escape attribute values and PCDATA contents. This flag is off by default.
+         Format_Save_File_Text      at 0 range 5..5;  -- 0x20; Open file using text mode in xml_document::save_file. This enables special character (i.e. new-line) conversions on some systems. This flag is off by default.
+         Format_Indent_Attributes   at 0 range 6..6;  -- 0x40; Write every attribute on a new line with appropriate indentation. This flag is off by default.
       end record;
 
    for XML_Format_Flags'Size use 32;
