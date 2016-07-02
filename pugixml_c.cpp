@@ -13,7 +13,7 @@
 #include "pugixml.hpp"
 
 extern "C" {
-	unsigned c_strlen(const char *str);
+	unsigned pugi_c_strlen(const char *str);
 
 	pugi::xml_document *pugi_new_xml_document();
 	pugi::xml_node pugi_doc_node(pugi::xml_document *doc);
@@ -553,7 +553,7 @@ pugi_set_attr_bool(pugi::xml_attribute obj,int value) {
 }
 
 unsigned
-c_strlen(const char *str) {
+pugi_c_strlen(const char *str) {
         return unsigned(strlen(str));
 }
 

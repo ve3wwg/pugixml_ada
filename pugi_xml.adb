@@ -11,7 +11,7 @@ package body Pugi_Xml is
 
    function Strlen(C_Ptr : System.Address) return Natural is
       function UX_strlen(cstr : System.Address) return Interfaces.C.Unsigned;
-      pragma Import(C,UX_strlen,"c_strlen");
+      pragma Import(C,UX_strlen,"pugi_c_strlen");
    begin
       return Natural(UX_strlen(C_Ptr));
    end Strlen;
