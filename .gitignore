@@ -1,0 +1,8 @@
+b~*
+*.o
+*.ali
+*.a
+pugidemo
+pugitest
+testconfig.xml
+out.xml
